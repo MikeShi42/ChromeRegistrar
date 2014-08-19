@@ -1,0 +1,21 @@
+{
+    "manifest_version": 2,
+
+    "name": "Chrome Registrar",
+    "description": "Find the Registrar of any website.",
+    "version": "0.0.1",
+
+    "permissions": [
+        "tabs",
+        "webNavigation",
+
+        "http://api.domaintools.com/",
+        "https://plus.google.com/"
+    ],
+    "background": {
+        "scripts": [
+            "jquery-2.1.1.min.js",
+            "listener.js"
+        ]
+    }
+}
