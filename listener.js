@@ -6,8 +6,12 @@ var lastHostName = [],
 //Listen for any tab navigation
 chrome.tabs.onUpdated.addListener(function(tabId, changeinfo, tab){
     var url = tab.url;
+    //Provide element to parse hostname
     var parser = document.createElement('a');
     parser.href = url;
+
+    console.log('Change On', tabId);
+
     //Only Reload On Change of Hostname
     if(parser.hostname != lastHostName[tabId]){
         console.log('Raw', url);
@@ -24,7 +28,6 @@ chrome.tabs.onUpdated.addListener(function(tabId, changeinfo, tab){
 
                 //Load the image from Google Plus's Favicon API
                 loadImage("https://plus.google.com/_/favicon?domain="+registrarUrl, function(imageData) {
-                    console.log(chrome.pageAction);
                     //Set the registrar icon and name
                     chrome.pageAction.show(tabId);
                     chrome.pageAction.setIcon({'tabId':tabId, imageData: imageData});
@@ -65,5 +68,7 @@ function loadImage(url, callback){
         context.drawImage(this, 0, 0);
         var imageData = context.getImageData(0, 0, img.width, img.height);
         callback(imageData);
+        //Clean up the canvas
+        $('canvas').remove();
     };
 }
