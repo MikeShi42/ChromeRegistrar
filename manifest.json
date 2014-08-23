@@ -12,9 +12,16 @@
         "http://api.domaintools.com/",
         "https://plus.google.com/"
     ],
+
+    "web_accessible_resources": [
+        "effective_tld_names.dat"
+    ],
+
     "background": {
         "scripts": [
             "jquery-2.1.1.min.js",
+            "punycode.js",
+            "publicsuffixlist.js",
             "listener.js"
         ]
     },

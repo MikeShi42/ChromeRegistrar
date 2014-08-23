@@ -3,6 +3,12 @@ var lastHostName = [],
     //Hold registrar icon/name when no hostName change is detected but a page nav has occured
     registrarDataCache = [];
 
+//Load and parse TLD list
+$.get(chrome.extension.getURL("effective_tld_names.dat"), function(data){
+    window.publicSuffixList.parse(data, punycode.toASCII);
+    console.log(data);
+});
+
 //Listen for any tab navigation
 chrome.tabs.onUpdated.addListener(function(tabId, changeinfo, tab){
     var url = tab.url;
@@ -10,15 +16,23 @@ chrome.tabs.onUpdated.addListener(function(tabId, changeinfo, tab){
     var parser = document.createElement('a');
     parser.href = url;
 
+    //Get Domain Name Only
+    var domain = window.publicSuffixList.getDomain(parser.hostname).toLowerCase();
+
     console.log('Change On', tabId);
 
+    //Ignore New Tabs
+    if(parser.hostname == 'newtab'){
+        return;
+    }
+
     //Only Reload On Change of Hostname
-    if(parser.hostname != lastHostName[tabId]){
+    if(!lastHostName[tabId] || domain != lastHostName[tabId]){
         console.log('Raw', url);
-        console.log('Parse', parser.hostname);
-        lastHostName[tabId] = parser.hostname;
+        console.log('Parse', domain);
+        lastHostName[tabId] = domain;
         //Query DomainTools API for Registrar
-        jQuery.get('http://api.domaintools.com/v1/'+parser.hostname+'/', function(data){
+        jQuery.get('http://api.domaintools.com/v1/'+domain+'/', function(data){
             var registrarName = data.response.registration.registrar;
             console.log('Registrar', registrarName);
 
@@ -32,6 +46,7 @@ chrome.tabs.onUpdated.addListener(function(tabId, changeinfo, tab){
                     chrome.pageAction.show(tabId);
                     chrome.pageAction.setIcon({'tabId':tabId, imageData: imageData});
                     chrome.pageAction.setTitle({'tabId':tabId, title: registrarName});
+                    //Set the registrar data into cache so it can be reused when the host name has not changed
                     registrarDataCache[tabId] = {'image':imageData, 'name':registrarName}
                 });
             });
