@@ -44,11 +44,19 @@ chrome.tabs.onUpdated.addListener(function(tabId, changeinfo, tab){
         jQuery.getJSON('https://whoisology.com/api?request=field&level=other&field=registrar_name&domain=' + domain + '&auth=' + whoisologyAPIKey, function(data){
             var registrarName = data.value;
             console.log('Registrar', registrarName);
+            if(!registrarName){
+                //If no registrar name, we won't show any page action
+                return;
+            }
 
             //Get Registrar Name -> Registrar Site Dictionary
             $.getJSON('resources/registrarSiteDictionary.json', function(registrarListing) {
                 //Search and match the registrar name with URL through our dictionary
                 var registrarUrl = getRegistrarUrl(registrarListing, registrarName);
+                if(!registrarUrl){
+                    //If no registrar URL, we won't show any page action
+                    return;
+                }
 
                 //Load the image from Google Plus's Favicon API
                 loadImage("https://plus.google.com/_/favicon?domain="+registrarUrl, function(imageData) {
