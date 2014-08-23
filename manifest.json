@@ -6,11 +6,14 @@
     "version": "0.0.1",
 
     "permissions": [
+        "storage",
         "tabs",
         "webNavigation",
         "https://whoisology.com/",
         "https://plus.google.com/"
     ],
+
+    "options_page": "settings.html",
 
     "web_accessible_resources": [
         "resources/effective_tld_names.dat"

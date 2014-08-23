@@ -1,4 +1,11 @@
-var whoisologyAPIKey = "b2dc43f5ceef31610d294fa01c6e7399";
+var whoisologyAPIKey = "";
+
+//Load API Key
+chrome.storage.sync.get({
+    api_key: ''
+}, function(items) {
+    whoisologyAPIKey = items.api_key;
+});
 
 //Store the last host name retrieved for the tabId
 var lastHostName = [],
