@@ -39,7 +39,6 @@ chrome.tabs.onUpdated.addListener(function(tabId, changeinfo, tab){
     if(!lastHostName[tabId] || domain != lastHostName[tabId]){
         console.log('Raw', url);
         console.log('Parse', domain);
-        lastHostName[tabId] = domain;
         //Query Whoisology API for Registrar
         jQuery.getJSON('https://whoisology.com/api?request=field&level=other&field=registrar_name&domain=' + domain + '&auth=' + whoisologyAPIKey, function(data){
             var registrarName = data.value;
@@ -66,6 +65,9 @@ chrome.tabs.onUpdated.addListener(function(tabId, changeinfo, tab){
                     chrome.pageAction.setTitle({'tabId':tabId, title: registrarName});
                     //Set the registrar data into cache so it can be reused when the host name has not changed
                     registrarDataCache[tabId] = {'image':imageData, 'name':registrarName, 'url': registrarUrl};
+
+                    //Only save last host name if the image load was successful
+                    lastHostName[tabId] = domain;
                 });
             });
         });
