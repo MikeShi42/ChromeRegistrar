@@ -1,3 +1,5 @@
+var whoisologyAPIKey = "";
+
 //Store the last host name retrieved for the tabId
 var lastHostName = [],
     //Hold registrar icon/name when no hostName change is detected but a page nav has occured
@@ -31,9 +33,10 @@ chrome.tabs.onUpdated.addListener(function(tabId, changeinfo, tab){
         console.log('Raw', url);
         console.log('Parse', domain);
         lastHostName[tabId] = domain;
-        //Query DomainTools API for Registrar
-        jQuery.get('http://api.domaintools.com/v1/'+domain+'/', function(data){
-            var registrarName = data.response.registration.registrar;
+        //Query Whoisology API for Registrar
+        jQuery.getJSON('https://whoisology.com/api?request=field&level=other&field=registrar_name&domain=' + domain + '&auth=' + whoisologyAPIKey, function(data){
+            console.log(data);
+            var registrarName = data.value;
             console.log('Registrar', registrarName);
 
             $.getJSON('registrarSiteDictionary.json', function(registrarListing) {

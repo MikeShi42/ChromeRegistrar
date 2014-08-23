@@ -8,8 +8,7 @@
     "permissions": [
         "tabs",
         "webNavigation",
-
-        "http://api.domaintools.com/",
+        "https://whoisology.com/",
         "https://plus.google.com/"
     ],
 
