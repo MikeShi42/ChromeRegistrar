@@ -1,4 +1,4 @@
-var whoisologyAPIKey = "";
+var whoisologyAPIKey = "b2dc43f5ceef31610d294fa01c6e7399";
 
 //Store the last host name retrieved for the tabId
 var lastHostName = [],
@@ -6,7 +6,7 @@ var lastHostName = [],
     registrarDataCache = [];
 
 //Load and parse TLD list
-$.get(chrome.extension.getURL("effective_tld_names.dat"), function(data){
+$.get(chrome.extension.getURL("resources/effective_tld_names.dat"), function(data){
     window.publicSuffixList.parse(data, punycode.toASCII);
     console.log(data);
 });
@@ -35,11 +35,11 @@ chrome.tabs.onUpdated.addListener(function(tabId, changeinfo, tab){
         lastHostName[tabId] = domain;
         //Query Whoisology API for Registrar
         jQuery.getJSON('https://whoisology.com/api?request=field&level=other&field=registrar_name&domain=' + domain + '&auth=' + whoisologyAPIKey, function(data){
-            console.log(data);
             var registrarName = data.value;
             console.log('Registrar', registrarName);
 
-            $.getJSON('registrarSiteDictionary.json', function(registrarListing) {
+            //Get Registrar Name -> Registrar Site Dictionary
+            $.getJSON('resources/registrarSiteDictionary.json', function(registrarListing) {
                 //Search and match the registrar name with URL through our dictionary
                 var registrarUrl = getRegistrarUrl(registrarListing, registrarName);
 
@@ -50,7 +50,7 @@ chrome.tabs.onUpdated.addListener(function(tabId, changeinfo, tab){
                     chrome.pageAction.setIcon({'tabId':tabId, imageData: imageData});
                     chrome.pageAction.setTitle({'tabId':tabId, title: registrarName});
                     //Set the registrar data into cache so it can be reused when the host name has not changed
-                    registrarDataCache[tabId] = {'image':imageData, 'name':registrarName}
+                    registrarDataCache[tabId] = {'image':imageData, 'name':registrarName, 'url': registrarUrl};
                 });
             });
         });
@@ -62,6 +62,14 @@ chrome.tabs.onUpdated.addListener(function(tabId, changeinfo, tab){
             chrome.pageAction.setIcon({'tabId':tabId, imageData: registrarDataCache[tabId].image});
             chrome.pageAction.setTitle({'tabId':tabId, title: registrarDataCache[tabId].name});
         }
+    }
+});
+
+//Clicking icon will load the registrar's website
+chrome.pageAction.onClicked.addListener(function(tab){
+    //If it's loaded in cache, grab and load url
+    if(registrarDataCache[tab.id]){
+        chrome.tabs.create({ url: registrarDataCache[tab.id].url });
     }
 });
 
